@@ -40,3 +40,10 @@ build/
 # Optional yarn cache directory
 .yarn/cache
 
+
+venv/
+.env
+data/
+model_data/
+*.pyc
+__pycache__/
