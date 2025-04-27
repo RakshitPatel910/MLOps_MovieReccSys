@@ -1,7 +1,8 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 
-import User from '../model/userSchema';
+import User from '../model/userSchema.js';
+import { addUser } from '../services/mlClient.js';
 
 const router = express.Router();
 const saltRound = parseInt(process.env.SALTROUND);
@@ -43,21 +44,31 @@ router.post('/signin', async (req, res) => {
 });
 
 router.post("/signup", async (req, res) => {
-  const { userName, email, password } = req.body;
+  const { userName, email, password, age, gender, occupation, zipCode } = req.body;
 
   try {
-    const userExist = await User.findOne({ email });
+    const mlres = await addUser({
+        age: age,
+        gender: gender,
+        occupation: occupation,
+        zip_code: zipCode
+    })
 
-    if (userExist) {
-      return res.json({ message: "Email already exists", status: false, profile: userExist });
-    }
+    const uid = mlres.data;
 
-    const newPassword = await encryption(password);
-    const user = new User({ userName, email, password: newPassword });
+    // const userExist = await User.findOne({ email });
 
-    await user.save();
-    return res.status(201).json({ message: "Signup successfully", status: true, profile: user });
+    // if (userExist) {
+    //   return res.json({ message: "Email already exists", status: false, profile: userExist });
+    // }
 
+    // const newPassword = await encryption(password);
+    // const user = new User({ userName, email, password: newPassword });
+
+    // await user.save();
+    // return res.status(201).json({ message: "Signup successfully", status: true, profile: user });
+
+    res.json(mlres);
   } 
   catch (error) {
     console.log(error);
