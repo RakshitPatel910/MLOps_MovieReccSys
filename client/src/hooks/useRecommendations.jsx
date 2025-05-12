@@ -1,6 +1,13 @@
 // client/src/hooks/useRecommendations.js
 import { useState } from 'react';
-import { recommendations } from '../data/dummyRecs';
+
+const recommendations = {
+  1: [101, 102, 103],
+  2: [104, 105],
+  3: [106],
+  4: [],
+  5: [107, 108, 109, 110]
+};
 
 export const useRecommendations = () => {
   const [recs, setRecs] = useState([]);
