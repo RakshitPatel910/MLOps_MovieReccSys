@@ -1,0 +1,20 @@
+- name: Ensure Docker is installed
+  apt:
+    name: docker.io
+    state: present
+    update_cache: yes
+
+- name: Pull ML service image
+  community.docker.docker_image:
+    name: prajyotshende/ml
+    tag: latest
+    source: pull
+
+- name: Deploy ML container
+  community.docker.docker_container:
+    name: ml
+    image: prajyotshende/ml:latest
+    state: started
+    restart_policy: always
+    ports:
+      - "8000:8000"

@@ -1,0 +1,20 @@
+- name: Ensure Docker is installed
+  apt:
+    name: docker.io
+    state: present
+    update_cache: yes
+
+- name: Pull frontend image
+  community.docker.docker_image:
+    name: prajyotshende/frontend
+    tag: latest
+    source: pull
+
+- name: Deploy frontend container
+  community.docker.docker_container:
+    name: frontend
+    image: prajyotshende/frontend:latest
+    state: started
+    restart_policy: always
+    ports:
+      - "80:80"

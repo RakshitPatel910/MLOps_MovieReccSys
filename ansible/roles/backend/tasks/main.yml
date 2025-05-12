@@ -1,0 +1,20 @@
+- name: Ensure Docker is installed
+  apt:
+    name: docker.io
+    state: present
+    update_cache: yes
+
+- name: Pull backend image
+  community.docker.docker_image:
+    name: prajyotshende/backend
+    tag: latest
+    source: pull
+
+- name: Deploy backend container
+  community.docker.docker_container:
+    name: backend
+    image: prajyotshende/backend:latest
+    state: started
+    restart_policy: always
+    ports:
+      - "3000:3000"
