@@ -1,20 +1,22 @@
 - name: Ensure Docker is installed
   apt:
-    name: docker.io
+    name: docker-ce
     state: present
     update_cache: yes
 
 - name: Pull ML service image
   community.docker.docker_image:
-    name: prajyotshende/ml
+    name: rakshit910/movie-recc-ml-service
     tag: latest
     source: pull
 
 - name: Deploy ML container
   community.docker.docker_container:
     name: ml
-    image: prajyotshende/ml:latest
+    image: rakshit910/movie-recc-ml-service:latest
     state: started
     restart_policy: always
     ports:
       - "8000:8000"
+    command: "uvicorn main:app --host 0.0.0.0 --port 8000"
+

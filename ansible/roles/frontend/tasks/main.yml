@@ -1,19 +1,19 @@
 - name: Ensure Docker is installed
   apt:
-    name: docker.io
+    name: docker-ce
     state: present
     update_cache: yes
 
 - name: Pull frontend image
   community.docker.docker_image:
-    name: prajyotshende/frontend
+    name: rakshit910/movie-recc-client
     tag: latest
     source: pull
 
 - name: Deploy frontend container
   community.docker.docker_container:
     name: frontend
-    image: prajyotshende/frontend:latest
+    image: rakshit910/movie-recc-client:latest
     state: started
     restart_policy: always
     ports:
