@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: rakshit910/movie-recc-server:latest
+          ports:
+          - containerPort: 8000
+          resources:
+              requests:
+                cpu:    200m
+                memory: 256Mi
+              limits:
+                cpu:    1
+                memory: 512Mi
+

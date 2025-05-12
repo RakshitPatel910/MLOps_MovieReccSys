@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ml
+  template:
+    metadata:
+      labels:
+        app: ml
+    spec:
+      containers:
+      - name: ml
+        image: rakshit910/movie-recc-ml-service:latest
+        ports:
+          - containerPort: 8000
+        volumeMounts:
+          - name: ml-100k
+            mountPath: /app/ml-100k
+          - name: model-data
+            mountPath: /app.model_data
+        resources:
+          requests:
+            cpu:    500m
+            memory: 512Mi
+          limits:
+            cpu:    2
+            memory: 1Gi
+      volumes:
+        - name: ml-100k
+          persistentVolumeClaim:
+            claimName: ml-100k-data-pvc
+        - name: model-data
+          persistentVolumeClaim:
+            claimName: model-data-pvc
