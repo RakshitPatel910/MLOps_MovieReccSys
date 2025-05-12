@@ -1,42 +1,123 @@
+/* ========== Base Reset ========== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ========== Root Layout ========== */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f1f5f9;
+  color: #333;
+}
+
+/* ========== Root Container ========== */
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ========== Header Banner ========== */
+.header {
+  width: 100%;
+  background-color: #ffffff;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.header h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #000000; /* black title */
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+.h1{
+  font-size: 2rem;
+  font-weight: bold;
+  color: #000000;
+}
+
+/* ========== Main Content Area ========== */
+.main-content {
+  max-width: 800px;
+  width: 100%;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  text-align: center;
+}
+
+/* ========== Form Input ========== */
+input[type="number"] {
+  border: 2px solid #cbd5e1;
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  width: 160px;
+  transition: border-color 0.2s ease;
+  background-color: white;
+}
+
+input[type="number"]:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+/* ========== Button Styling ========== */
+button {
+  background-color: #3b82f6;
+  color: white;
+  padding: 0.5rem 1.25rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 0.375rem;
+  margin-left: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+button:hover {
+  background-color: #2563eb;
+}
+
+/* ========== Recommendation List ========== */
+ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 2rem;
+}
+
+li {
+  background-color: #e0f2fe;
+  margin: 0.5rem auto;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  width: 60%;
+  font-weight: 500;
+  color: #0369a1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* ========== Messages ========== */
+p {
+  margin-top: 1rem;
+  color: #6b7280;
+}
+
+/* ========== Responsive Tweaks ========== */
+@media (max-width: 500px) {
+  .main-content {
+    padding: 0 1rem;
   }
-  to {
-    transform: rotate(360deg);
+
+  li {
+    width: 90%;
   }
-}
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+  button {
+    margin-left: 0.5rem;
   }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
 }
