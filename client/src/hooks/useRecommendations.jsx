@@ -1,26 +1,20 @@
 // client/src/hooks/useRecommendations.js
 import { useState } from 'react';
-
-const recommendations = {
-  1: [101, 102, 103],
-  2: [104, 105],
-  3: [106],
-  4: [],
-  5: [107, 108, 109, 110]
-};
+import { fetchRecommendations } from '../services/api'; // Adjust path if needed
 
 export const useRecommendations = () => {
   const [recs, setRecs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const getRecs = (userId) => {
+  const getRecs = async (userId) => {
     setLoading(true);
     setError(null);
     try {
-      const items = recommendations[userId] || [];
+      const items = await fetchRecommendations(userId);
       setRecs(items);
     } catch (err) {
+      console.error(err);
       setError('Failed to load recommendations.');
     } finally {
       setLoading(false);
