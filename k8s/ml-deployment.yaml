@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: ml
 spec:
-  replicas: 2
+  replicas: 1                       # match your HPA minReplicas
   selector:
     matchLabels:
       app: ml
@@ -12,27 +12,39 @@ spec:
       labels:
         app: ml
     spec:
+
+      initContainers:
+      - name: seed-and-mkdir
+        image: rakshit910/ml-data-seeder:latest
+        command:
+          - sh
+          - -c
+          - |
+            # Mount the PVC on /data-root, prepare subdirs, seed once
+            mkdir -p /data-root/ml-100k
+            mkdir -p /data-root/model_data
+            if [ -z "$(ls -A /data-root/ml-100k)" ]; then
+              cp -r /ml-100k/* /data-root/ml-100k/
+            fi
+        volumeMounts:
+          - name: data
+            mountPath: /data-root
+
       containers:
       - name: ml
         image: rakshit910/movie-recc-ml-service:latest
         ports:
           - containerPort: 8000
         volumeMounts:
-          - name: ml-100k
+          # Mount only the ml-100k subdir into /app/ml-100k
+          - name: data
             mountPath: /app/ml-100k
-          - name: model-data
-            mountPath: /app.model_data
-        resources:
-          requests:
-            cpu:    500m
-            memory: 512Mi
-          limits:
-            cpu:    2
-            memory: 1Gi
+            subPath: ml-100k
+          - name: data  # Add this
+            mountPath: /app/model_data
+            subPath: model_data
+
       volumes:
-        - name: ml-100k
-          persistentVolumeClaim:
-            claimName: ml-100k-data-pvc
-        - name: model-data
-          persistentVolumeClaim:
-            claimName: model-data-pvc
+      - name: data
+        persistentVolumeClaim:
+          claimName: data-pvc

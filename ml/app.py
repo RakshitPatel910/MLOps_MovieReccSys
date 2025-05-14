@@ -79,7 +79,7 @@ async def submit_feedback(feedback: FeedbackIn):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/recommend/{user_id}", response_model=Dict[str, List[int]])
+@app.get("/ml/recommend/{user_id}", response_model=Dict[str, List[int]])
 async def get_recommendations(user_id: int):
     try:
         user_ids     = data_manager.app_state["models"]["user_ids"]
