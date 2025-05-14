@@ -39,7 +39,7 @@ RUN npm install -g nodemon
 RUN groupadd -r app && useradd --no-log-init -r -g app app
 USER app
 
-EXPOSE 8000
+EXPOSE 3000
 
 # Production start; override to `nodemon index.js` for local dev
 CMD [ "node", "index.js" ]
