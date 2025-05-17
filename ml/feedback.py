@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 
-FEEDBACK_PATH = "./ml-100K/feedback.csv"
+FEEDBACK_PATH = "./ml-100k/feedback.csv"
 
 def write_feedback(user_id, item_id, rating):
     """
