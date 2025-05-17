@@ -29,6 +29,21 @@ spec:
         volumeMounts:
           - name: data
             mountPath: /data-root
+      - name: train-model
+        image: rakshit910/movie-recc-ml-service:latest  # Python-enabled image
+        command:
+          - sh
+          - -c
+          - |
+            mkdir -p /app/model_data
+            python -c "from model_manager import model_manager; model_manager.train_model()"
+        volumeMounts:
+          - name: data
+            mountPath: /app/ml-100k
+            subPath: ml-100k
+          - name: data
+            mountPath: /app/model_data
+            subPath: model_data
 
       containers:
       - name: ml

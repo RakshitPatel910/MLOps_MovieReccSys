@@ -34,6 +34,15 @@ class DataManager:
                 usecols=["user", "item", "rating"]
             )
             
+            # Load movie titles from u.item
+            item_path = os.path.join(DATA_DIR, "u.item")
+            try:
+                item_df = pd.read_csv(item_path, sep='|', encoding='latin-1', header=None, usecols=[0, 1], names=["item_id", "title"])
+                item_map = dict(zip(item_df["item_id"], item_df["title"]))
+            except Exception as e:
+                item_map = {}
+            self.app_state["data"]["item_titles"] = item_map
+
             # Load feedback data
             feedback_path = os.path.join(DATA_DIR, "feedback.csv")
             try:

@@ -1,63 +1,82 @@
-// import express from 'express';
-// import cors from 'cors';
-
-// import userRouter from './routes/user.js';
-// import authRouter from './routes/auth.js';
-// import { connectDB } from './db.js'; 
-// const app = express();
-// const PORT = 3000;
-
-// app.use(express.json());
-// app.use(cors());
-
-// // Connect to MongoDB and start the server
-// connectDB().then((db) => {
-//   app.locals.db = db; // optionally store DB in app context
-
-//   app.use('/backend/', userRouter);
-//   app.use('/backend/auth/', authRouter);
-
-//   app.listen(PORT, () => {
-//     console.log(`Server is running at port ${PORT}`);
-//   });
-// }).catch(err => {
-//   console.error("Failed to connect to MongoDB, server not started:", err);
-// });
-
-
 import express from 'express';
 import cors from 'cors';
-
+import { CronJob } from 'cron';
+import { connectDB } from './db.js';
 import userRouter from './routes/user.js';
 import authRouter from './routes/auth.js';
-const app = express();
+import { fullSync } from './services/syncServices.js';
 
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware
 app.use(express.json());
 app.use(cors());
 
-app.use('/api/', userRouter);
-app.use('/api/auth/', authRouter);
+// Database Connection
+const startServer = async () => {
+  try {
+    const dbConnection = await connectDB();
+    app.locals.db = dbConnection;
 
-const PORT = '3000';
+    // Routes
+    app.use('/api', userRouter);
+    app.use('/api/auth', authRouter);
 
-app.listen(PORT, () => {
-    console.log("server is running at port 3010");
-  });
+    // Manual sync endpoint
+    app.post('/api/admin/sync', async (req, res) => {
+      try {
+        const result = await fullSync();
+        res.json(result);
+      } catch (error) {
+        res.status(500).json({ error: error.message });
+      }
+    });
 
+    // Start server
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+      
+      // Start sync processes
+      scheduleRecurringSync();
+      initialSync();
+    });
 
-// const MINIKUBE_IP = '192.168.49.2';
-// const FRONTEND_ORIGIN = `http://${MINIKUBE_IP}:30073`;
-// app.use(express.json());
+  } catch (error) {
+    console.error("Failed to initialize server:", error);
+    process.exit(1);
+  }
+};
 
-// app.use(cors({
-//   origin: FRONTEND_ORIGIN,
-// }));
+// Sync Functions
+const initialSync = async () => {
+  console.log('[SYNC] Running initial sync...');
+  try {
+    const result = await fullSync();
+    console.log(`[SYNC] Initial sync completed. Users: ${result.users}, Ratings: ${result.ratings}`);
+  } catch (error) {
+    console.error('[SYNC] Initial sync failed:', error);
+  }
+};
 
-// app.use('/', userRouter);
-// app.use('/backend/auth/', authRouter);
+const scheduleRecurringSync = () => {
+  // Every 6 hours at minute 0
+  new CronJob(
+    '0 */6 * * *',
+    async () => {
+      console.log('[SYNC] Starting scheduled sync...');
+      try {
+        const result = await fullSync();
+        console.log(`[SYNC] Scheduled sync completed. Users: ${result.users}, Ratings: ${result.ratings}`);
+      } catch (error) {
+        console.error('[SYNC] Scheduled sync failed:', error);
+      }
+    },
+    null,
+    true,
+    'UTC'
+  );
+};
 
-// const PORT = 3000;
-
-// app.listen(PORT, () => {
-//   console.log(`server is running at port ${PORT}`);
-// });
+// Start the application
+startServer();

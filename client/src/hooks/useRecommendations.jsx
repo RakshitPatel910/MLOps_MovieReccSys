@@ -12,6 +12,9 @@ export const useRecommendations = () => {
     setError(null);
     try {
       const items = await fetchRecommendations(userId);
+
+      console.log(items);
+
       setRecs(items);
     } catch (err) {
       console.error(err);

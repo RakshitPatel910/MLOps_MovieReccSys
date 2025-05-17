@@ -61,12 +61,14 @@ class ModelManager:
             user_meta = user_meta.reindex(user_ids)
 
             # Feature engineering
+            scaler_age = StandardScaler()  # Assign the scaler to a variable
+            age_scaled = scaler_age.fit_transform(user_meta[["age"]])
+
             ohe_gender = OneHotEncoder(sparse_output=False, handle_unknown="ignore")
-            ohe_occupation = OneHotEncoder(sparse_output=False, handle_unknown="ignore")
-            
             gender_feats = ohe_gender.fit_transform(user_meta[["gender"]])
+
+            ohe_occupation = OneHotEncoder(sparse_output=False, handle_unknown="ignore")
             occ_feats = ohe_occupation.fit_transform(user_meta[["occupation"]])
-            age_scaled = StandardScaler().fit_transform(user_meta[["age"]])
             
             # Ensure dimensional alignment
             user_profiles = np.hstack([
@@ -81,14 +83,17 @@ class ModelManager:
             nn.fit(user_profiles)
 
             # Save artifacts
-            os.makedirs(MODEL_DIR, exist_ok=True)
             artifacts = {
                 "user_ids": user_ids,
                 "item_ids": pivot.columns.to_numpy(),
                 "item_factors": svd.components_.T,
                 "user_profiles": user_profiles,
                 "global_mean": combined["rating"].mean(),
-                "nn_model": nn
+                "nn_model": nn,
+                "svd": svd,  # Add SVD instance
+                "scaler_age": scaler_age,  # Add scaler
+                "ohe_gender": ohe_gender,  # Add encoder
+                "ohe_occupation": ohe_occupation,  # Add encoder
             }
             
             for name, obj in artifacts.items():

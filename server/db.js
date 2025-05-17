@@ -1,22 +1,11 @@
-import { MongoClient, ServerApiVersion } from 'mongodb';
+import mongoose from "mongoose";
 
-const uri = "mongodb+srv://shendeprajyot:Prajyot%401011@cluster0.c9085tk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
-
-export async function connectDB() {
+export const connectDB = async () => {
   try {
-    await client.connect();
-    console.log("Connected to MongoDB!");
-    return client.db("Cluster0");
+    await mongoose.connect("mongodb+srv://rakshitpatel910:3At0jkIMdjPzhegb@movie-cluster.ksqkwri.mongodb.net/?retryWrites=true&w=majority&appName=movie-cluster");
+    console.log('MongoDB connected');
   } catch (err) {
-    console.error("MongoDB connection error:", err);
-    throw err;
+    console.error('Connection error:', err);
+    process.exit(1);
   }
-}
+};

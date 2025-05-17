@@ -2,7 +2,7 @@
 
 services:
   frontend-service:
-    image: prajyotshende/movie-recc-client:latest
+    image: rakshit910/movie-recc-client:latest
     container_name: frontend-service
     ports:
       - "80:80"
@@ -13,7 +13,7 @@ services:
       - backend-service
 
   backend-service:
-    image: prajyotshende/movie-recc-server:latest
+    image: rakshit910/movie-recc-server:latest
     container_name: backend-service
     ports:
       - "3000:3000"
@@ -24,7 +24,7 @@ services:
       - ml-service
 
   ml-service:
-    image: prajyotshende/movie-recc-ml-service:latest
+    image: rakshit910/movie-recc-ml-service:latest
     container_name: ml-service
     ports:
       - "8000:8000"

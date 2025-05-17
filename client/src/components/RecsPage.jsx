@@ -40,8 +40,8 @@ export default function RecsPage() {
 
       {recs.length > 0 && (
         <ul className="mb-6">
-          {recs.map(id => (
-            <li key={id}>Movie ID: {id}</li>
+          {recs.map(r => (
+            <li key={r.title}>Movie ID: {r.title}</li>
           ))}
         </ul>
       )}

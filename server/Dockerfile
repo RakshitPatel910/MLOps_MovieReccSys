@@ -25,12 +25,13 @@ FROM node:18-slim
 WORKDIR /app
 
 # Copy only what's needed from builder
-COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/node_modules  ./node_modules
 COPY --from=builder /app/package.json  ./package.json
 COPY --from=builder /app/index.js      ./index.js
 COPY --from=builder /app/routes        ./routes
 COPY --from=builder /app/services      ./services
 COPY --from=builder /app/model         ./model
+COPY --from=builder /app/db.js         ./db.js
 
 # (Optional) Install nodemon globally for dev/debug
 RUN npm install -g nodemon
