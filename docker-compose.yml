@@ -1,43 +1,40 @@
 # version: '3.8'
 
 services:
-  frontend:
-    image: rakshit910/movie-recc-client:latest
+  frontend-service:
+    image: prajyotshende/movie-recc-client:latest
+    container_name: frontend-service
     ports:
       - "80:80"
     restart: always
     networks:
-      - movie_net_frontend_2_backend
+      - movie-recc-network
     depends_on:
-      - backend
+      - backend-service
 
-  backend:
-    image: rakshit910/movie-recc-server:latest
+  backend-service:
+    image: prajyotshende/movie-recc-server:latest
+    container_name: backend-service
     ports:
       - "3000:3000"
     restart: always
     networks:
-      - movie_net_frontend_2_backend
-      - movie_net_backend_2_ml
+      - movie-recc-network
     depends_on:
-      - ml
+      - ml-service
 
-  ml:
-    image: rakshit910/movie-recc-ml-service:latest
+  ml-service:
+    image: prajyotshende/movie-recc-ml-service:latest
+    container_name: ml-service
     ports:
       - "8000:8000"
     restart: always
     command: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
-    networks:
-      - movie_net_backend_2_ml
     volumes:
-      - ./ml/ml-100k:/app/ml-100k 
-
-volumes:
-  ml_data:
+      - ./ml/ml-100k:/app/ml-100k
+    networks:
+      - movie-recc-network
 
 networks:
-  movie_net_frontend_2_backend:
-    driver: bridge
-  movie_net_backend_2_ml:
+  movie-recc-network:
     driver: bridge

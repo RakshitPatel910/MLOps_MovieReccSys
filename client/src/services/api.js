@@ -4,13 +4,16 @@ import axios from "axios";
   // process.env.REACT_APP_SERVER_URL ||
   // "http://movie-recc-server:3000";
   
-  const SERVER_URL = "http://localhost:3000";
+  // const SERVER_URL = "http://localhost:3000";
+  const SERVER_URL = '/api';
+  // const SERVER_URL = '';
+
 
   export const fetchRecommendations = async (userId) => {
     if (!userId) return [];
     const response = await axios.post(
-      // `${SERVER_URL}/backend/getRecommendation`,
-      `/api/getRecommendation`,
+      `${SERVER_URL}/getRecommendation`,            //compose
+      // `/api/getRecommendation`,                          //k8s
       { id: userId },
       { headers: { "Content-Type": "application/json" } }
     );
@@ -24,7 +27,7 @@ import axios from "axios";
       feedback: { uid, iid, rating }
     };
     const { data } = await axios.post(
-      `${SERVER_URL}/backend/feedback`,
+      `${SERVER_URL}/feedback`,
       payload,
       { headers: { 'Content-Type': 'application/json' } }
     );

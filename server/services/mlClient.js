@@ -1,7 +1,7 @@
 import axios from "axios";
 
-// const ML_URL = process.env.ML_URL || "http://ml-service:8000/ml";        //k8s
-const ML_URL = process.env.ML_URL || "http://movie-recc-ml-service:8000";   //compose
+const ML_URL = process.env.ML_URL || "http://ml-service:8000";        //k8s
+// const ML_URL = process.env.ML_URL || "http://movie-recc-ml-service:8000";   //compose
 
 export const addUser = async (user) => {
     const res = await axios.post(`${ML_URL}/users/create`, user);
