@@ -9,7 +9,8 @@ import axios from "axios";
   export const fetchRecommendations = async (userId) => {
     if (!userId) return [];
     const response = await axios.post(
-      `${SERVER_URL}/backend/getRecommendation`,
+      // `${SERVER_URL}/backend/getRecommendation`,
+      `/api/getRecommendation`,
       { id: userId },
       { headers: { "Content-Type": "application/json" } }
     );
