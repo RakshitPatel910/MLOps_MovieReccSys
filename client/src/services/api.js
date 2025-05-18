@@ -4,10 +4,39 @@ import axios from "axios";
   // process.env.REACT_APP_SERVER_URL ||
   // "http://movie-recc-server:3000";
   
-  // const SERVER_URL = "http://localhost:3000";
-  const SERVER_URL = '/api';
+  // const SERVER_URL = "http://localhost:3000/api";     //local
+  const SERVER_URL = '/api';                       // k8s and compose
   // const SERVER_URL = '';
 
+
+  export const login = async (email, password) => {
+    try {
+      const response = await axios.post(`${SERVER_URL}/auth/signin`, {
+        email,
+        password
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Login failed');
+    }
+  }
+
+  export const signup = async (userData) => {
+    try {
+      const response = await axios.post(`${SERVER_URL}/auth/signup`, {
+        userName: userData.username,
+        email: userData.email,
+        password: userData.password,
+        age: userData.age,
+        gender: userData.gender,
+        occupation: userData.occupation,
+        zipCode: userData.zipCode
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Registration failed');
+    }
+  }
 
   export const fetchRecommendations = async (userId) => {
     if (!userId) return [];

@@ -155,6 +155,8 @@ async def create_user(user_data: UserCreate):
         with open(path, "a") as f:
             f.write(f"{new_id}|{user_data.age}|{user_data.gender}|"
                     f"{user_data.occupation}|{user_data.zip_code}\n")
+            
+        print(new_id)
         return {"user_id": new_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -189,21 +191,31 @@ async def get_recommendations(user_id: int):
 
         # ─── Cold-start branch ───────────────────────────────────
         if user_id not in M["user_ids"]:
-            meta = pd.read_csv(
-                os.path.join(DATA_DIR, "u.user"),
-                sep="|",
-                names=["user_id","age","gender","occupation","zip_code"]
-            ).set_index("user_id")
-            if user_id not in meta.index:
-                return {"recommended_items": []}
+            try:
+                meta = pd.read_csv(
+                    os.path.join(DATA_DIR, "u.user"),
+                    sep="|",
+                    names=["user_id","age","gender","occupation","zip_code"]
+                ).set_index("user_id")
+                if user_id not in meta.index:
+                    return {"recommended_items": []}
 
-            row       = meta.loc[user_id]
-            age_v     = M["scaler_age"].transform([[row.age]])
-            gender_v  = M["ohe_gender"].transform([[row.gender]])
-            occ_v     = M["ohe_occupation"].transform([[row.occupation]])
-            zeros = np.zeros((1, M["svd"].n_components))
-            profile   = np.hstack([zeros, age_v, gender_v, occ_v])
-            neighbors, weights = neighbors_from(profile)
+                row = meta.loc[user_id]
+                # Transform using DataFrames to include feature names
+                age_df = pd.DataFrame([[row.age]], columns=["age"])
+                age_v = M["scaler_age"].transform(age_df)
+
+                gender_df = pd.DataFrame([[row.gender]], columns=["gender"])
+                gender_v = M["ohe_gender"].transform(gender_df)
+
+                occupation_df = pd.DataFrame([[row.occupation]], columns=["occupation"])
+                occ_v = M["ohe_occupation"].transform(occupation_df)
+
+                zeros = np.zeros((1, M["svd"].n_components))
+                profile = np.hstack([zeros, age_v, gender_v, occ_v])
+                neighbors, weights = neighbors_from(profile)
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"Cold-start processing failed: {str(e)}")
 
         # ─── Existing-user branch ───────────────────────────────
         else:

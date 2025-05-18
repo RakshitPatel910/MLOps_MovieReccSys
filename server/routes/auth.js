@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 
 import User from '../model/userSchema.js';
 import { addUser } from '../services/mlClient.js';
+import { enhanceWatchlist } from '../helpers/movieHelpers.js';
 
 const router = express.Router();
 const saltRound = parseInt(process.env.SALTROUND);
@@ -17,29 +18,34 @@ router.post('/signin', async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ email });
+      const user = await User.findOne({ email }).select('+password');
+      
+      console.log(await user.comparePassword(password))
 
-    if (!user) {
-      return res.json({ message: "User does not exist", status: false });
-    }
+      if (!user || !(await user.comparePassword(password))) {
+          return res.status(401).json({
+              message: "Invalid credentials",
+              status: false
+          });
+      }
 
-    const isMatch = bcrypt.compareSync(password, user.password);
+      const userProfile = user.toObject();
+      delete userProfile.password;
 
-    if (isMatch) {
-      user.password = ""; // Remove password from response
+      const enhancedProfile = {
+        ...userProfile,
+        watchlist: enhanceWatchlist(userProfile.watchlist || [])
+      };
 
       return res.json({
-        message: "Successfully Logged in",
-        status: true,
-        profile: user
+          message: "Login successful",
+          status: true,
+          profile: enhancedProfile
       });
-    } else {
-      return res.json({ message: "Password is incorrect", status: false });
-    }
   } 
   catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: "Internal server error", status: false });
+      console.log(error);
+      return res.status(500).json({ message: "Internal server error", status: false });
   }
 });
 
@@ -47,6 +53,25 @@ router.post("/signup", async (req, res) => {
   const { userName, email, password, age, gender, occupation, zipCode } = req.body;
 
   try {
+    // const mlres = await addUser({
+    //     age: age,
+    //     gender: gender,
+    //     occupation: occupation,
+    //     zip_code: zipCode
+    // })
+
+    // const uid = mlres.data;
+
+    const userExist = await User.findOne({ $or: [{ email }, { userName }] });
+
+    if (userExist) {
+      return res.status(409).json({
+        message: "Username/email already exists",
+        status: false
+      });
+    }
+
+
     const mlres = await addUser({
         age: age,
         gender: gender,
@@ -54,21 +79,37 @@ router.post("/signup", async (req, res) => {
         zip_code: zipCode
     })
 
-    const uid = mlres.data;
+    console.log(mlres)
 
-    // const userExist = await User.findOne({ email });
+    const uid = mlres.user_id;
 
-    // if (userExist) {
-    //   return res.json({ message: "Email already exists", status: false, profile: userExist });
-    // }
 
-    // const newPassword = await encryption(password);
-    // const user = new User({ userName, email, password: newPassword });
+     const user = new User({
+        ml_user_id: uid, // From ML service response
+        username: userName,
+        email,
+        password, // Will be hashed by schema pre-save hook
+        age: Number(age),
+        gender,
+        occupation,
+        zip_code: zipCode
+    });
 
-    // await user.save();
-    // return res.status(201).json({ message: "Signup successfully", status: true, profile: user });
+    await user.save();
 
-    res.json(mlres);
+    const userProfile = user.toObject();
+    delete userProfile.password;
+
+    const enhancedProfile = {
+      ...userProfile,
+      watchlist: enhanceWatchlist(userProfile.watchlist || [])
+    };
+
+    return res.status(201).json({
+        message: "Signup successful",
+        status: true,
+        profile: enhancedProfile
+    });
   } 
   catch (error) {
     console.log(error);

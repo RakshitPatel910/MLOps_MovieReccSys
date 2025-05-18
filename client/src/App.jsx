@@ -56,25 +56,55 @@ src/
 
 // export default App;
 
-
-import React from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
-import LoginPage from './components/LoginPage'
-import RecsPage from './components/RecsPage'
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import LoginPage from './components/LoginPage';
+import SignupPage from './components/SignupPage';
+import RecsPage from './components/RecsPage';
+import Header from './components/Header';
 
 function App() {
-  const isLoggedIn = !!localStorage.getItem('userId')
+  const location = useLocation();
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    !!localStorage.getItem('userId')
+  );
+
+  // Listen for storage changes
+  useEffect(() => {
+    const checkAuth = () => {
+      const loggedIn = !!localStorage.getItem('userId');
+      if (loggedIn !== isLoggedIn) {
+        setIsLoggedIn(loggedIn);
+      }
+    };
+
+    window.addEventListener('storage', checkAuth);
+    return () => window.removeEventListener('storage', checkAuth);
+  }, [isLoggedIn]);
 
   return (
-    <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route
-        path="/recs"
-        element={isLoggedIn ? <RecsPage /> : <Navigate to="/login" replace />}
-      />
-      <Route path="*" element={<Navigate to="/login" replace />} />
-    </Routes>
-  )
+    <div className="min-h-screen bg-gray-100">
+      <Header />
+      <Routes location={location} key={location.pathname}>
+        <Route
+          path="/login"
+          element={!isLoggedIn ? <LoginPage /> : <Navigate to="/recs" replace />}
+        />
+        <Route
+          path="/signup"
+          element={!isLoggedIn ? <SignupPage /> : <Navigate to="/recs" replace />}
+        />
+        <Route
+          path="/recs"
+          element={isLoggedIn ? <RecsPage /> : <Navigate to="/login" replace />}
+        />
+        <Route
+          path="*"
+          element={<Navigate to={isLoggedIn ? "/recs" : "/login"} replace />}
+        />
+      </Routes>
+    </div>
+  );
 }
 
-export default App
+export default App;

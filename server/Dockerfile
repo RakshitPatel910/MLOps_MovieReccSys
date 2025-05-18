@@ -32,6 +32,8 @@ COPY --from=builder /app/routes        ./routes
 COPY --from=builder /app/services      ./services
 COPY --from=builder /app/model         ./model
 COPY --from=builder /app/db.js         ./db.js
+COPY --from=builder /app/serverdata    ./serverdata
+COPY --from=builder /app/helpers       ./helpers
 
 # (Optional) Install nodemon globally for dev/debug
 RUN npm install -g nodemon

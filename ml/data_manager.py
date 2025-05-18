@@ -55,10 +55,21 @@ class DataManager:
             self.app_state["data"]["ratings"] = combined
             self.app_state["data"]["user_history"] = combined.groupby("user")["item"].apply(set).to_dict()
             
-            # Initialize next user ID
-            max_existing = combined["user"].max() if not combined.empty else 0
-            user_ids = self.load_user_ids()
-            self.app_state["data"]["next_user_id"] = max(max_existing, (user_ids.max() if user_ids.size > 0 else 0)) + 1
+            # ─── FIXED: Get next_user_id from u.user ──────────────────
+            user_meta_path = os.path.join(DATA_DIR, "u.user")
+            if os.path.exists(user_meta_path):
+                user_meta = pd.read_csv(
+                    user_meta_path,
+                    sep="|",
+                    names=["user_id", "age", "gender", "occupation", "zip_code"],
+                    usecols=["user_id"]
+                )
+                max_user_id = user_meta["user_id"].max()
+            else:
+                max_user_id = 0
+            
+            self.app_state["data"]["next_user_id"] = max_user_id + 1
+            # ───────────────────────────────────────────────────────────
             
             # Initialize feedback counter
             self.app_state["data"]["feedback_count"] = len(feedback_df)

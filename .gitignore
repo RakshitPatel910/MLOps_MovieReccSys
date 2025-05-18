@@ -44,6 +44,6 @@ build/
 venv/
 .env
 data/
-model_data/
+# model_data/
 *.pyc
 __pycache__/

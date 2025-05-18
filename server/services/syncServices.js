@@ -46,30 +46,34 @@ export async function syncUsers() {
 
 export async function syncRatings() {
   try {
-    const mlRatings = await getAllRatings(); // Directly use imported function
+    const mlRatings = await getAllRatings();
     const userMap = new Map();
 
+    // Group ratings by user and movie_id (unique per movie)
     mlRatings.forEach(rating => {
-      if (!userMap.has(rating.user_id)) {
-        userMap.set(rating.user_id, new Map());
+      const userId = rating.user_id;
+      const movieId = rating.item_id;
+      
+      if (!userMap.has(userId)) {
+        userMap.set(userId, new Map());
       }
-      userMap.get(rating.user_id).set(rating.item_id, {
-        movie_id: rating.item_id,
+      
+      // Overwrite existing entry if movie_id exists
+      userMap.get(userId).set(movieId, {
+        movie_id: movieId,
         rating: rating.rating,
         timestamp: new Date(rating.timestamp * 1000 || Date.now())
       });
     });
 
     const operations = [];
-    for (const [userId, ratings] of userMap) {
+    for (const [userId, movies] of userMap) {
       operations.push({
         updateOne: {
           filter: { ml_user_id: parseInt(userId) },
           update: {
-            $addToSet: {
-              watchlist: {
-                $each: Array.from(ratings.values())
-              }
+            $set: {  // Replace existing watchlist
+              watchlist: Array.from(movies.values())
             }
           }
         }

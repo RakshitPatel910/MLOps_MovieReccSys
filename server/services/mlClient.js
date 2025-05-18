@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // const ML_URL = process.env.ML_URL || "http://localhost:8000";        //local
-const ML_URL = process.env.ML_URL || "http://ml-service:8000";        //k8s
+const ML_URL = process.env.ML_URL || "http://ml-service:8000";        //k8s ans compose
 // const ML_URL = process.env.ML_URL || "http://movie-recc-ml-service:8000";   //compose
 
 export const getAllUsers = async () => {
@@ -17,9 +17,13 @@ export const getAllRatings = async () => {
 }
 
 export const addUser = async (user) => {
-    const res = await axios.post(`${ML_URL}/ml/users/create`, user);
+    try {
+        const res = await axios.post(`${ML_URL}/ml/users/create`, user);
 
-    return res.data;
+        return res.data;
+    } catch (error) {
+        return res.status(500).json({message: `ML Service Error: ${error.response?.data?.detail || error.message}`});
+    }
 }
 
 export const fetchRecommendation = async ( uid ) => {

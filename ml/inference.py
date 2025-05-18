@@ -14,7 +14,7 @@ def load_model_components():
     names = [
         "user_ids", "item_ids", "item_factors",
         "user_profiles", "nn_model", "global_mean",
-        "svd", "scaler", "ohe_gender", "ohe_occupation"
+        "svd", "scaler_age", "ohe_gender", "ohe_occupation"
     ]
     components = {}
     for name in names:
