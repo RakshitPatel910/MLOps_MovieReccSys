@@ -1,0 +1,76 @@
+---
+# Logstash Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logstash
+spec:
+  selector:
+    matchLabels:
+      app: logstash
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: logstash
+    spec:
+      containers:
+        - name: logstash
+          image: docker.elastic.co/logstash/logstash:8.8.0
+          ports:
+            - containerPort: 5044
+          volumeMounts:
+            - name: logstash-config
+              mountPath: /usr/share/logstash/pipeline
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "512Mi"
+            limits:
+              cpu: "200m"
+              memory: "1Gi"
+      volumes:
+        - name: logstash-config
+          configMap:
+            name: logstash-config
+---
+# Logstash Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: logstash
+spec:
+  ports:
+    - port: 5044
+      targetPort: 5044
+      nodePort: 30008
+  selector:
+    app: logstash
+---
+# Logstash ConfigMap for pipeline configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logstash-config
+data:
+  logstash.conf: |
+    input {
+      tcp {
+        port => 5044
+        codec => json
+      }
+    }
+    filter {
+      if [message] and "_jsonparsefailure" in [tags] {
+        mutate {
+          add_field => { "malformed_log" => "%{message}" }
+          remove_field => ["message"]
+        }
+      }
+    }
+    output {
+      elasticsearch {
+        hosts => ["http://elasticsearch:9200"]
+        index => "middleware-logs-%{+YYYY.MM.dd}"
+      }
+    }
