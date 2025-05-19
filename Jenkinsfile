@@ -29,7 +29,7 @@ pipeline {
 
         stage('Push Docker Images') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'DockerHubCred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                withCredentials([usernamePassword(credentialsId: 'docker-id', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     script {
                         def loginStatus = sh(script: 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin', returnStatus: true)
                         if (loginStatus != 0) {
@@ -56,13 +56,14 @@ pipeline {
             }
         }
         */
+                        // ansible-playbook -vvv k8s/deploy.yaml
 
         // ---- Active: Kubernetes Ansible Deployment ----
         stage('Run Ansible Playbook for Kubernetes') {
             steps {
                 script {
                     sh '''
-                        ansible-playbook -vvv k8s/deploy.yaml
+                        ansible-playbook -i inventory.ini playbook-compose.yml
                     '''
                 }
             }
