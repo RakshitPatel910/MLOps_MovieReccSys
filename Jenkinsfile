@@ -46,20 +46,21 @@ pipeline {
 
         // ---- Uncomment this to use Docker Compose deployment ----
         /*
-        stage('Run Ansible Playbook for Docker Compose') {
+        stage('Ansible Deploy K8s') {
             steps {
-                script {
+                withCredentials([usernamePassword(credentialsId: 'ansible-id', usernameVariable: 'ANSIBLE_USER', passwordVariable: 'ANSIBLE_PASS')]) {
                     sh '''
-                        ansible-playbook -vvv compose/deploy.yaml
+                        export ANSIBLE_HOST_KEY_CHECKING=False
+                        ansible-playbook -i ansible/inventory.ini ansible/playbook-k8s.yml \
+                        --extra-vars "ansible_user=$ANSIBLE_USER ansible_ssh_pass=$ANSIBLE_PASS ansible_become_pass=$ANSIBLE_PASS"
                     '''
                 }
             }
         }
         */
-                        // ansible-playbook -vvv k8s/deploy.yaml
 
         // ---- Active: Kubernetes Ansible Deployment ----
-        stage('Ansible Deploy') {
+        stage('Ansible Deploy Compose') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'ansible-id', usernameVariable: 'ANSIBLE_USER', passwordVariable: 'ANSIBLE_PASS')]) {
                     sh '''
