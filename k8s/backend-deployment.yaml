@@ -14,10 +14,15 @@ spec:
     spec:
       containers:
         - name: backend
-          image: prajyotshende/movie-recc-server:latest
+          image: rakshit910/movie-recc-server:latest
           ports:
           - containerPort: 3000
           env:
+          - name: MONGODB_URI
+            valueFrom:
+              secretKeyRef:
+                name: mongodb-secret
+                key: connection-string
           - name: LOGSTASH_HOST
             value: "logstash"
           - name: LOGSTASH_PORT
@@ -29,4 +34,3 @@ spec:
               limits:
                 cpu:    1
                 memory: 512Mi
-
