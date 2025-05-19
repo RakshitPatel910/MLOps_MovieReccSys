@@ -5,7 +5,7 @@ pipeline {
         BACKEND_IMAGE = 'prajyotshende/movie-recc-server:latest'
         FRONTEND_IMAGE = 'prajyotshende/movie-recc-client:latest'
         MLSERVICE_IMAGE = 'prajyotshende/movie-recc-ml-service:latest'
-        GITHUB_REPO_URL = 'https://github.com/prajyotshende/MLOps_MovieReccSys.git'
+        GITHUB_REPO_URL = 'https://github.com/RakshitPatel910/MLOps_MovieReccSys.git'
     }
 
     stages {
