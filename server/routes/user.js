@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 // const User = require("../model/userSchema.js");
 import User from "../model/userSchema.js";
 import { fetchRecommendation, addFeedback } from "../services/mlClient.js";
+import { movieDB } from '../serverdata/movieDB.js';
 
 const router = express.Router();
 
@@ -17,35 +18,57 @@ router.post('/getRecommendation', async (req, res) => {
     catch (err) {
         res.status(502).json({error: err});
     }   
-})
+});
+
 
 router.post('/feedback', async (req, res) => {
     const { id, feedback } = req.body;
 
-    console.log(feedback)
-
     try {
-        // const user = await User.findOne({ "uid" : id });
+        // Validate movie ID exists in database
+        const movieIdString = feedback.iid.toString();
+        if (!movieDB[movieIdString]) {
+            return res.status(400).json({ 
+                error: `Invalid movie ID: ${feedback.iid}` 
+            });
+        }
 
-        // let wl = user.watchlist;
+        // Update user's watchlist in MongoDB
+        const user = await User.findOne({ ml_user_id: id });
 
-        // wl.forEach((movie) => {
-        //     if( movie.mid === feedback.mid ) movie.rating = feedback.rating;
-        // })
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
 
-        // user.watchlist = wl;
+        // Find existing movie in watchlist
+        const existingMovieIndex = user.watchlist.findIndex(
+            movie => movie.movie_id === feedback.iid
+        );
 
-        // await User.findOneAndUpdate({ "uid" : id }, user);
+        if (existingMovieIndex !== -1) {
+            // Update existing rating
+            user.watchlist[existingMovieIndex].rating = feedback.rating;
+        } else {
+            // Add new entry to watchlist
+            user.watchlist.push({
+                movie_id: feedback.iid,
+                rating: feedback.rating,
+                // timestamp added automatically by schema
+            });
+        }
 
+        await user.save();
+
+        // Send feedback to ML service
         const fres = await addFeedback(feedback);
-
-        console.log(fres);
-
         res.json(fres);
     } 
     catch (err) {
-        res.json({error: err});
+        console.error('Feedback error:', err);
+        res.status(500).json({ 
+            error: err.response?.data?.message || err.message 
+        });
     }
-})
+});
 
 export default router;

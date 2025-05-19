@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // const ML_URL = process.env.ML_URL || "http://localhost:8000";        //local
-const ML_URL = process.env.ML_URL || "http://ml-service:8000";        //k8s ans compose
+const ML_URL = process.env.ML_URL || "http://ml-service:8000";        //k8s and compose
 // const ML_URL = process.env.ML_URL || "http://movie-recc-ml-service:8000";   //compose
 
 export const getAllUsers = async () => {
