@@ -59,11 +59,13 @@ pipeline {
                         // ansible-playbook -vvv k8s/deploy.yaml
 
         // ---- Active: Kubernetes Ansible Deployment ----
-        stage('Run Ansible Playbook for Kubernetes') {
+        stage('Ansible Deploy') {
             steps {
-                script {
+                withCredentials([usernamePassword(credentialsId: 'ansible-id', usernameVariable: 'ANSIBLE_USER', passwordVariable: 'ANSIBLE_PASS')]) {
                     sh '''
-                        ansible-playbook -i inventory.ini playbook-compose.yml
+                        export ANSIBLE_HOST_KEY_CHECKING=False
+                        ansible-playbook -i inventory.ini playbook-compose.yml \
+                        --extra-vars "ansible_user=$ANSIBLE_USER ansible_ssh_pass=$ANSIBLE_PASS ansible_become_pass=$ANSIBLE_PASS"
                     '''
                 }
             }
