@@ -2,6 +2,7 @@
 - name: Deploy Movie Recommendation Stack to Kubernetes
   hosts: all
   become: yes
+
   vars:
     k8s_dir: "{{ playbook_dir }}/../k8s"
     kubeconfig_path: "/root/.kube/config"
@@ -20,48 +21,5 @@
       - elasticsearch.yaml
       - kibana.yaml
 
-  tasks:
-    - name: Install minikube
-      get_url:
-        url: https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-        dest: /usr/local/bin/minikube
-        mode: '0755'
-
-    - name: Ensure kubeconfig directory exists
-      file:
-        path: "{{ kubeconfig_path | dirname }}"
-        state: directory
-        mode: '0755'
-
-    - name: Copy kubeconfig from ansible/files
-      copy:
-        src: files/kubeconfig
-        dest: "{{ kubeconfig_path }}"
-        mode: '0600'
-
-    # Optional: If you still want to use a specific namespace
-    # - name: Create namespace
-    #   kubernetes.core.k8s:
-    #     api_version: v1
-    #     kind: Namespace
-    #     name: movie-recc
-    #     state: present
-    #   environment:
-    #     KUBECONFIG: "{{ kubeconfig_path }}"
-
-    # # ✅ Pull latest images from Docker Hub
-    # - name: Pull latest images
-    #   command: docker-compose pull
-    #   args:
-    #     chdir: "{{ playbook_dir }}/.."
-
-    - name: Apply manifests in order
-      kubernetes.core.k8s:
-        state: present
-        namespace: default
-        src: "{{ k8s_dir }}/{{ item }}"
-      loop: "{{ manifest_order }}"
-      loop_control:
-        label: "{{ item }}"
-      environment:
-        KUBECONFIG: "{{ kubeconfig_path }}"
+  roles:
+    - k8s

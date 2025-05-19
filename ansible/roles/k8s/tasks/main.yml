@@ -1,0 +1,31 @@
+---
+# tasks/main.yml for "k8s" role
+
+- name: Install minikube binary
+  get_url:
+    url: https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+    dest: /usr/local/bin/minikube
+    mode: '0755'
+
+- name: Ensure kubeconfig directory exists
+  file:
+    path: "{{ kubeconfig_path | dirname }}"
+    state: directory
+    mode: '0755'
+
+- name: Copy kubeconfig from ansible/files
+  copy:
+    src: files/kubeconfig
+    dest: "{{ kubeconfig_path }}"
+    mode: '0600'
+
+- name: Apply Kubernetes manifests in order
+  kubernetes.core.k8s:
+    state: present
+    namespace: default
+    src: "{{ k8s_dir }}/{{ item }}"
+  loop: "{{ manifest_order }}"
+  loop_control:
+    label: "{{ item }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"

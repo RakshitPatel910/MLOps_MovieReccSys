@@ -1,0 +1,75 @@
+---
+# tasks/main.yml for "compose" role
+
+- name: Check if Docker is installed
+  command: docker --version
+  register: docker_check
+  ignore_errors: yes
+  changed_when: false
+
+- name: Install Docker dependencies
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop:
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - software-properties-common
+  when: docker_check is failed
+
+- name: Add Docker GPG key
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    dest: /usr/share/keyrings/docker-archive-keyring.gpg
+  when: docker_check is failed
+
+- name: Add Docker repository
+  apt_repository:
+    repo: >
+      deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg]
+      https://download.docker.com/linux/ubuntu jammy stable
+    state: present
+  when: docker_check is failed
+
+- name: Install Docker packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+    - docker-compose-plugin
+  when: docker_check is failed
+
+- name: Check if Docker Compose works
+  command: docker compose version
+  register: compose_check
+  ignore_errors: yes
+  changed_when: false
+
+- name: Install legacy Docker Compose
+  apt:
+    name: docker-compose
+    state: present
+  when:
+    - compose_check is failed
+    - docker_check is success
+
+- name: Start and enable Docker service
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Pull latest images
+  command: docker-compose pull
+  args:
+    chdir: "{{ playbook_dir }}/.."
+
+- name: Start containers
+  command: docker-compose up -d
+  args:
+    chdir: "{{ playbook_dir }}/.."
