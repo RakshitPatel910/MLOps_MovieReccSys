@@ -43,7 +43,6 @@ spec:
   ports:
     - port: 5044
       targetPort: 5044
-      nodePort: 30008
   selector:
     app: logstash
 ---
