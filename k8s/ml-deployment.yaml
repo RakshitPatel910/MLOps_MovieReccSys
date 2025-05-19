@@ -15,7 +15,7 @@ spec:
 
       initContainers:
       - name: seed-and-mkdir
-        image: prajyotshende/ml-data-seeder:latest
+        image: rakshit910/ml-data-seeder:latest
         command:
           - sh
           - -c
