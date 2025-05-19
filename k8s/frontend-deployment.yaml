@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image:  rakshit910/movie-recc-client:latest
+          image:  prajyotshende/movie-recc-client:latest
           ports:
             - containerPort: 5173
           resources:

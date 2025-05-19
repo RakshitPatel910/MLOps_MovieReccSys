@@ -3,21 +3,21 @@ version: '3.8'
 services:
   # Existing services
   frontend-service:
-    image: rakshit910/movie-recc-client:latest
+    image: prajyotshende/movie-recc-client:latest
     ports: ["80:80"]
     networks: [movie-recc-network]
     depends_on: [backend-service]
     restart: always
 
   backend-service:
-    image: rakshit910/movie-recc-server:latest 
+    image: prajyotshende/movie-recc-server:latest 
     ports: ["3000:3000"]
     networks: [movie-recc-network]
     depends_on: [ml-service]
     restart: always
 
   ml-service:
-    image: rakshit910/movie-recc-ml-service:latest
+    image: prajyotshende/movie-recc-ml-service:latest
     ports: ["8000:8000"]
     command: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
     volumes: ["./ml/ml-100k:/app/ml-100k"]

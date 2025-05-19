@@ -15,7 +15,7 @@ spec:
 
       initContainers:
       - name: seed-and-mkdir
-        image: rakshit910/ml-data-seeder:latest
+        image: prajyotshende/ml-data-seeder:latest
         command:
           - sh
           - -c
@@ -30,7 +30,7 @@ spec:
           - name: data
             mountPath: /data-root
       - name: train-model
-        image: rakshit910/movie-recc-ml-service:latest  # Python-enabled image
+        image: prajyotshende/movie-recc-ml-service:latest  # Python-enabled image
         command:
           - sh
           - -c
@@ -47,7 +47,7 @@ spec:
 
       containers:
       - name: ml
-        image: rakshit910/movie-recc-ml-service:latest
+        image: prajyotshende/movie-recc-ml-service:latest
         ports:
           - containerPort: 8000
         volumeMounts:
