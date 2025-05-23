@@ -15,6 +15,10 @@ services:
     networks: [movie-recc-network]
     depends_on: [ml-service]
     restart: always
+    environment:
+      - MONGODB_URI=mongodb+srv://rakshitpatel910:3At0jkIMdjPzhegb@movie-cluster.ksqkwri.mongodb.net/?retryWrites=true&w=majority&appName=movie-cluster
+      - LOGSTASH_HOST=logstash
+      - LOGSTASH_PORT=5044
 
   ml-service:
     image: prajyotshende/movie-recc-ml-service:latest
