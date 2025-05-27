@@ -30,7 +30,7 @@ class DataManager:
             base_df = pd.read_csv(
                 os.path.join(DATA_DIR, "u1.base"),
                 sep="\t",
-                names=["user", "item", "rating", "timestamp"],
+                names=["user", "item", "rating"],
                 usecols=["user", "item", "rating"]
             )
             
