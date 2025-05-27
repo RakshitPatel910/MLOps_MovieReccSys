@@ -46,61 +46,61 @@ pipeline {
 
         // ---- Uncomment this to use Docker Compose deployment ----
         
-            // stage('Ansible Deploy K8s') {
-            //             steps {
-            //                 withCredentials([
-            //                     usernamePassword(credentialsId: 'ansible-id',
-            //                                     usernameVariable: 'ANSIBLE_USER',
-            //                                     passwordVariable: 'ANSIBLE_SSH_PASS'),
-            //                     string(credentialsId: 'vault-pass',
-            //                         variable: 'VAULT_PASS')
-            //                 ]) {
-            //                     writeFile file: 'ansible/.vault_pass.txt', text: VAULT_PASS
+            stage('Ansible Deploy K8s') {
+                        steps {
+                            withCredentials([
+                                usernamePassword(credentialsId: 'ansible-id',
+                                                usernameVariable: 'ANSIBLE_USER',
+                                                passwordVariable: 'ANSIBLE_SSH_PASS'),
+                                string(credentialsId: 'vault-pass',
+                                    variable: 'VAULT_PASS')
+                            ]) {
+                                writeFile file: 'ansible/.vault_pass.txt', text: VAULT_PASS
 
-            //                     sh '''
-            //                         export ANSIBLE_HOST_KEY_CHECKING=False
+                                sh '''
+                                    export ANSIBLE_HOST_KEY_CHECKING=False
 
-            //                         ansible-playbook \
-            //                         -i ansible/inventory.ini \
-            //                         ansible/playbook-k8s.yml \
-            //                         -e ansible_user=$ANSIBLE_USER \
-            //                         -e ansible_ssh_pass=$ANSIBLE_SSH_PASS \
-            //                         --vault-password-file ansible/.vault_pass.txt
-            //                     '''
+                                    ansible-playbook \
+                                    -i ansible/inventory.ini \
+                                    ansible/playbook-k8s.yml \
+                                    -e ansible_user=$ANSIBLE_USER \
+                                    -e ansible_ssh_pass=$ANSIBLE_SSH_PASS \
+                                    --vault-password-file ansible/.vault_pass.txt
+                                '''
 
-            //                     sh 'rm -f ansible/.vault_pass.txt'
-            //                 }
-            //             }
-            //         }
+                                sh 'rm -f ansible/.vault_pass.txt'
+                            }
+                        }
+                    }
 
         
 
         // ---- Active: Kubernetes Ansible Deployment ----
-        stage('Ansible Deploy Compose') {
-            steps {
-                withCredentials([
-                usernamePassword(credentialsId: 'ansible-id',
-                                usernameVariable: 'ANSIBLE_USER',
-                                passwordVariable: 'ANSIBLE_SSH_PASS'),
-                string(credentialsId: 'vault-pass', variable: 'VAULT_PASS')
-                ]) {
-                // write out a one-time vault-pw file
-                writeFile file: 'ansible/.vault_pass.txt', text: VAULT_PASS
+        // stage('Ansible Deploy Compose') {
+        //     steps {
+        //         withCredentials([
+        //         usernamePassword(credentialsId: 'ansible-id',
+        //                         usernameVariable: 'ANSIBLE_USER',
+        //                         passwordVariable: 'ANSIBLE_SSH_PASS'),
+        //         string(credentialsId: 'vault-pass', variable: 'VAULT_PASS')
+        //         ]) {
+        //         // write out a one-time vault-pw file
+        //         writeFile file: 'ansible/.vault_pass.txt', text: VAULT_PASS
 
-                sh '''
-                    export ANSIBLE_HOST_KEY_CHECKING=False
+        //         sh '''
+        //             export ANSIBLE_HOST_KEY_CHECKING=False
 
-                    ansible-playbook \
-                    -i ansible/inventory.ini \
-                    ansible/playbook-compose.yml \
-                    -e ansible_user=$ANSIBLE_USER \
-                    -e ansible_ssh_pass=$ANSIBLE_SSH_PASS \
-                    --vault-password-file ansible/.vault_pass.txt
-                '''
-                sh 'rm -f ansible/.vault_pass.txt'
-                }
-            }
-            }
+        //             ansible-playbook \
+        //             -i ansible/inventory.ini \
+        //             ansible/playbook-compose.yml \
+        //             -e ansible_user=$ANSIBLE_USER \
+        //             -e ansible_ssh_pass=$ANSIBLE_SSH_PASS \
+        //             --vault-password-file ansible/.vault_pass.txt
+        //         '''
+        //         sh 'rm -f ansible/.vault_pass.txt'
+        //         }
+        //     }
+        //     }
 
 
     }
