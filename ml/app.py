@@ -214,7 +214,7 @@ async def submit_feedback(feedback: FeedbackIn):
         })
         data_manager.add_feedback(feedback.user_id, feedback.item_id, feedback.rating)
         
-        if data_manager.check_retrain_needed(threshold=2):
+        if data_manager.check_retrain_needed(threshold=100):
             logger.info("Initiating model retraining")
             model_manager.train_model()
             
